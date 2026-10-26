@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Banking Intelligence{% endblock %}</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* ================= 1. FINTECH THEME VARIABLES ================= */
+        :root {
+            /* Backgrounds */
+            --bg-deep: #02040a;
+            --bg-gradient: radial-gradient(circle at 50% -20%, #1a237e 0%, #02040a 45%);
+            
+            /* Glassmorphism */
+            --glass-surface: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            
+            /* Accents */
+            --accent-cyan: #00f2ea;
+            --accent-cyan-dim: rgba(0, 242, 234, 0.1);
+            --accent-pink: #ff0055;
+            
+            /* Text */
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            
+            /* Effects */
+            --shadow-glow: 0 0 25px rgba(0, 242, 234, 0.15);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* ================= 2. GLOBAL RESET & TYPOGRAPHY ================= */
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-deep);
+            background-image: var(--bg-gradient);
+            background-attachment: fixed; /* Parallax feel */
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Custom Scrollbar for Chrome/Safari/Edge */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+
+        /* ================= 3. NAVIGATION (SLEEK & STICKY) ================= */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(2, 4, 10, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .nav-brand { 
+            font-size: 1.4rem; 
+            font-weight: 700; 
+            color: white; 
+            text-decoration: none; 
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-brand i { color: var(--accent-cyan); }
+
+        .nav-links { display: flex; gap: 30px; }
+        .nav-link { 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        /* Nav Link Hover Effect */
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0; height: 2px;
+            bottom: -5px; left: 0;
+            background-color: var(--accent-cyan);
+            transition: var(--transition);
+            box-shadow: 0 0 8px var(--accent-cyan);
+        }
+        .nav-link:hover { color: white; }
+        .nav-link:hover::after { width: 100%; }
+
+        /* ================= 4. LAYOUT COMPONENTS ================= */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* The Core Glass Card - Used everywhere */
+        .glass-panel {
+            background: var(--glass-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid var(--glass-highlight); /* Subtle top light */
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Header Styling */
+        h1.glow-text {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff 0%, #a5f3fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 234, 0.3);
+            letter-spacing: -1px;
+        }
+
+        /* Table Styling */
+        .table-responsive { 
+            overflow-x: auto; 
+            border-radius: 12px; 
+            border: 1px solid var(--glass-border);
+        }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th { 
+            background: rgba(0, 242, 234, 0.05); 
+            color: var(--accent-cyan); 
+            padding: 16px; 
+            text-align: left; 
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+        td { 
+            padding: 16px; 
+            border-bottom: 1px solid var(--glass-border); 
+            color: var(--text-muted); 
+            font-size: 0.95rem;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { 
+            background: rgba(255, 255, 255, 0.02); 
+            color: white; 
+        }
+
+        /* ================= 5. ANIMATIONS ================= */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Utility Classes */
+        .text-cyan { color: var(--accent-cyan); }
+        .text-pink { color: var(--accent-pink); }
+        .mt-20 { margin-top: 20px; }
+        .mb-40 { margin-bottom: 40px; }
+
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <i class="fa-solid fa-layer-group"></i> 
+            <span>FinSight<span style="color:var(--accent-cyan)">.AI</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/dashboard" class="nav-link">Analytics</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Django & Python
+__pycache__/
+*.pyc
+db.sqlite3
+
+# Environment Variables (Secrets)
+.env
+
+# Virtual Environment
+venv/
+env/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

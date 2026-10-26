@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}FinSight AI | Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ================= HERO LAYOUT ================= */
+    .hero-container {
+        min-height: 70vh; /* Takes up most of the screen */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative;
+    }
+
+    /* Background accent blob for depth */
+    .hero-bg-glow {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(0, 242, 234, 0.08) 0%, rgba(0,0,0,0) 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* ================= TYPOGRAPHY ================= */
+    .hero-title {
+        font-size: 4.5rem; /* Massive, bold title */
+        font-weight: 700;
+        margin: 0;
+        line-height: 1.1;
+        letter-spacing: -2px;
+        background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero-subtitle {
+        color: var(--text-muted);
+        font-size: 1.25rem;
+        max-width: 650px;
+        margin: 20px auto 50px auto;
+        line-height: 1.6;
+        font-weight: 300;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    /* ================= TECH STATUS CARD ================= */
+    .status-card {
+        display: inline-flex;
+        align-items: center;
+        gap: 25px;
+        background: var(--glass-surface);
+        border: 1px solid var(--glass-border);
+        padding: 12px 30px;
+        border-radius: 100px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        margin-bottom: 50px;
+        animation: float 6s ease-in-out infinite, fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    /* Green Pulse */
+    .status-active {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #00ff9d;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1.5px;
+    }
+    
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #00ff9d;
+        border-radius: 50%;
+        box-shadow: 0 0 0 rgba(0, 255, 157, 0.4);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.4); }
+        70% { box-shadow: 0 0 0 12px rgba(0, 255, 157, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+    }
+
+    /* Divider Line */
+    .status-divider {
+        width: 1px;
+        height: 24px;
+        background: rgba(255,255,255,0.15);
+    }
+
+    /* Model Info */
+    .model-info {
+        color: #dce3ea;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ================= MAIN BUTTON ================= */
+    .launch-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px 60px;
+        font-size: 1.3rem;
+        background: transparent;
+        color: white;
+        border: 1px solid var(--accent-cyan);
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        animation: fadeInUp 0.8s ease-out 0.6s both;
+        box-shadow: 0 0 20px rgba(0, 242, 234, 0.1);
+    }
+
+    /* Fill effect on hover */
+    .launch-btn::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 0; height: 100%;
+        background: var(--accent-cyan);
+        transition: all 0.4s ease;
+        z-index: -1;
+    }
+
+    .launch-btn:hover {
+        color: #000;
+        box-shadow: 0 0 40px rgba(0, 242, 234, 0.4);
+        transform: translateY(-5px);
+        border-color: var(--accent-cyan);
+    }
+    
+    .launch-btn:hover::before { width: 100%; }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-container">
+    <div class="hero-bg-glow"></div>
+
+    <div class="status-card">
+        <div class="status-active">
+            <div class="pulse-dot"></div>
+            System Online
+        </div>
+        <div class="status-divider"></div>
+        <div class="model-info">
+            <i class="fa-solid fa-microchip" style="color: var(--accent-cyan);"></i>
+            {{ model_name }}
+        </div>
+    </div>
+
+    <h1 class="hero-title">Banking Intelligence <br> Reimagined.</h1>
+    
+    <p class="hero-subtitle">
+        Seamlessly bridge the gap between complex financial data and executive decisions. 
+        Secure, instant, and powered by next-gen AI.
+    </p>
+
+    <a href="{% url 'dashboard' %}" class="launch-btn">
+        <span>Open Dashboard</span>
+        <i class="fa-solid fa-arrow-right-long"></i>
+    </a>
+</div>
+{% endblock %}

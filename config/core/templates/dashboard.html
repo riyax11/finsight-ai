@@ -1,0 +1,611 @@
+{% extends 'base.html' %}
+
+{% block title %}FinSight AI | Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ================= DASHBOARD LAYOUT ================= */
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: white;
+    }
+    
+    .dashboard-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+
+    /* ================= COMMAND BAR (SEARCH) ================= */
+    .command-bar-wrapper {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto 25px auto;
+        z-index: 10;
+    }
+
+    .command-bar {
+        display: flex;
+        align-items: center;
+        background: rgba(10, 10, 25, 0.8);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 8px 8px 8px 25px;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .command-bar:focus-within {
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 25px rgba(0, 242, 234, 0.15);
+        background: rgba(10, 10, 25, 1);
+    }
+
+    .search-icon {
+        color: var(--accent-cyan);
+        font-size: 1.2rem;
+        margin-right: 15px;
+    }
+
+    .command-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 1.1rem;
+        font-family: 'Outfit', sans-serif;
+        outline: none;
+        height: 100%;
+    }
+
+    .command-input::placeholder { color: #5c6b7f; }
+
+    .execute-btn {
+        background: var(--accent-cyan);
+        color: #000;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .execute-btn:hover {
+        background: #fff;
+        box-shadow: 0 0 15px var(--accent-cyan);
+        transform: translateY(-1px);
+    }
+
+    /* ================= QUICK PILLS ================= */
+    .suggestions-grid {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 40px;
+    }
+
+    .suggestion-pill {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--glass-border);
+        padding: 8px 16px;
+        border-radius: 50px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .suggestion-pill i { color: var(--accent-cyan); }
+
+    .suggestion-pill:hover {
+        background: rgba(0, 242, 234, 0.1);
+        border-color: var(--accent-cyan);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* ================= ALERTS ================= */
+    .ai-insight-box {
+        background: linear-gradient(90deg, rgba(0, 242, 234, 0.05) 0%, rgba(0,0,0,0) 100%);
+        border-left: 4px solid var(--accent-cyan);
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .ai-icon {
+        background: rgba(0, 242, 234, 0.1);
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent-cyan);
+        flex-shrink: 0;
+    }
+
+    .error-banner {
+        background: rgba(255, 0, 85, 0.1);
+        border: 1px solid rgba(255, 0, 85, 0.3);
+        color: #ff8fa3;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    /* ================= SQL TERMINAL ================= */
+    .sql-container {
+        margin-bottom: 30px;
+        animation: fadeInUp 0.5s ease-out;
+    }
+    
+    .sql-box {
+        background: #0d1117;
+        color: #58a6ff;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.9rem;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .sql-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .copy-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: color 0.2s;
+    }
+    .copy-btn:hover { color: white; }
+
+    /* ================= VISUALIZATION CARD ================= */
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .chart-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    .viz-controls {
+        background: rgba(255,255,255,0.05);
+        padding: 4px;
+        border-radius: 8px;
+        display: flex;
+        gap: 4px;
+    }
+
+    .viz-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .viz-btn:hover { color: white; }
+    
+    .viz-btn.active {
+        background: var(--glass-highlight);
+        color: var(--accent-cyan);
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* ================= SPINNER ================= */
+    .spinner {
+        width: 18px; height: 18px;
+        border: 2px solid rgba(0,0,0,0.3);
+        border-top-color: #000;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ================= RESULT COUNT BADGE ================= */
+    .result-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(0, 242, 234, 0.1);
+        border: 1px solid rgba(0, 242, 234, 0.2);
+        color: var(--accent-cyan);
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 12px;
+    }
+
+    /* No-chart notice */
+    .no-chart-notice {
+        text-align: center;
+        padding: 20px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    {# ── Hidden data islands for JS ── #}
+    {# FIXED: Moved inside {% block content %} so they're always rendered #}
+    {{ results|json_script:"results-data" }}
+    {{ columns|json_script:"columns-data" }}
+
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Financial Command Center</h1>
+        <p class="dashboard-subtitle">Query your database using natural language</p>
+    </div>
+
+    <div class="command-bar-wrapper">
+        <form method="POST" class="command-bar" id="queryForm">
+            {% csrf_token %}
+            <i class="fa-solid fa-terminal search-icon"></i>
+            <input type="text" 
+                   name="question" 
+                   id="qInput" 
+                   class="command-input"
+                   value="{{ user_question }}" 
+                   placeholder="Type a command (e.g., 'Show top 5 loans by amount')..." 
+                   autocomplete="off" 
+                   required>
+            
+            <button type="submit" class="execute-btn" id="submitBtn">
+                <span>Run</span>
+                <i class="fa-solid fa-bolt"></i>
+                <div class="spinner" id="spinner"></div>
+            </button>
+        </form>
+    </div>
+
+    <div class="suggestions-grid">
+        <div class="suggestion-pill" onclick="fillQ('Top 5 accounts by balance')">
+            <i class="fa-solid fa-ranking-star"></i> Top Accounts
+        </div>
+        <div class="suggestion-pill" onclick="fillQ('Count transactions grouped by type')">
+            <i class="fa-solid fa-stopwatch"></i> Txn Volume
+        </div>
+        <div class="suggestion-pill" onclick="fillQ('Show loan amounts grouped by status')">
+            <i class="fa-solid fa-chart-pie"></i> Loan Mix
+        </div>
+        <div class="suggestion-pill" onclick="fillQ('List the 10 largest transactions by amount')">
+            <i class="fa-solid fa-triangle-exclamation"></i> Big Txns
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="error-banner">
+        <i class="fa-solid fa-circle-xmark"></i>
+        <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    {# ── AI SUMMARY ── #}
+    {% if summary %}
+    <div class="glass-panel ai-insight-box">
+        <div class="ai-icon">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div>
+            <h4 style="margin: 0 0 8px 0; color: var(--accent-cyan);">AI Analysis</h4>
+            <p style="margin: 0; color: #dce3ea; line-height: 1.7;">{{ summary }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── GENERATED SQL ── #}
+    {% if sql_query %}
+    <div class="sql-container">
+        <div class="sql-label">
+            <span><i class="fa-solid fa-code"></i> Generated SQL Query</span>
+            <button class="copy-btn" id="copyBtn" title="Copy Code">
+                <i class="fa-regular fa-copy"></i> Copy
+            </button>
+        </div>
+        {# Store raw SQL in a data attribute to avoid JS template escaping issues #}
+        <div class="sql-box" id="sqlBox">{{ sql_query }}</div>
+    </div>
+    {% endif %}
+
+    {# ── CHART ── #}
+    {# Always rendered; JS shows/hides based on whether data is chartable #}
+    <div class="glass-panel" id="chartSection" style="display: none;">
+        <div class="chart-header">
+            <div class="chart-title">
+                <i class="fa-solid fa-chart-column" style="color: var(--accent-cyan);"></i> 
+                Data Visualization
+            </div>
+            
+            <div class="viz-controls">
+                {# FIXED: pass `this` so setChartType can update active class without relying on bare `event` #}
+                <button class="viz-btn active" onclick="setChartType('bar', this)">Bar</button>
+                <button class="viz-btn" onclick="setChartType('line', this)">Line</button>
+                <button class="viz-btn" onclick="setChartType('doughnut', this)">Donut</button>
+                <button class="viz-btn" onclick="setChartType('pie', this)">Pie</button>
+            </div>
+        </div>
+        
+        <div style="height: 400px; position: relative;">
+            <canvas id="mainChart"></canvas>
+        </div>
+    </div>
+
+    {# ── RESULTS TABLE ── #}
+    {% if results %}
+    <div class="glass-panel">
+        <div class="chart-title" style="margin-bottom: 20px;">
+            <i class="fa-solid fa-table-list" style="color: var(--accent-cyan);"></i> 
+            Query Results
+            <span class="result-badge">
+                <i class="fa-solid fa-database"></i>
+                {{ results|length }} row{{ results|length|pluralize }}
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        {% for col in columns %}
+                            <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in results %}
+                    <tr>
+                        {% for cell in row %}
+                            <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% elif sql_query and not error %}
+    {# SQL ran fine but returned zero rows #}
+    <div class="glass-panel" style="text-align:center; color: var(--text-muted); padding: 40px;">
+        <i class="fa-solid fa-inbox" style="font-size:2rem; margin-bottom:12px; display:block; color: var(--accent-cyan);"></i>
+        Query returned no results.
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ─── UI HELPERS ───────────────────────────────────────────────────────────
+
+    function fillQ(text) {
+        document.getElementById('qInput').value = text;
+        document.getElementById('queryForm').submit();
+    }
+
+    // Copy SQL button — reads from the DOM element, no template injection into JS
+    const copyBtn = document.getElementById('copyBtn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+            const sql = document.getElementById('sqlBox').innerText;
+            navigator.clipboard.writeText(sql).then(() => {
+                copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+                }, 2000);
+            });
+        });
+    }
+
+    // Spinner on submit
+    const form = document.getElementById('queryForm');
+    if (form) {
+        form.addEventListener('submit', function () {
+            const btn    = document.getElementById('submitBtn');
+            const span   = btn.querySelector('span');
+            const icon   = btn.querySelector('i');
+            const spinner = document.getElementById('spinner');
+            btn.disabled = true;
+            btn.style.opacity = '0.8';
+            if (span)    span.style.display   = 'none';
+            if (icon)    icon.style.display    = 'none';
+            if (spinner) spinner.style.display = 'block';
+        });
+    }
+
+    // ─── CHART LOGIC ──────────────────────────────────────────────────────────
+
+    let myChart = null;
+    let chartConfig = {
+        labels: [],
+        data: [],
+        labelName: 'Value',
+        currentType: 'bar'
+    };
+
+    document.addEventListener('DOMContentLoaded', initDashboard);
+
+    function initDashboard() {
+        const resEl = document.getElementById('results-data');
+        const colEl = document.getElementById('columns-data');
+        if (!resEl || !colEl) return;
+
+        let rawResults, rawColumns;
+        try {
+            rawResults = JSON.parse(resEl.textContent || 'null');
+            rawColumns = JSON.parse(colEl.textContent || 'null');
+        } catch(e) {
+            console.warn('Could not parse result data:', e);
+            return;
+        }
+
+        // Guard: need at least 2 columns and 1 row
+        if (!rawResults || !rawColumns || rawResults.length === 0 || rawColumns.length < 2) return;
+
+        const chartable = detectAxes(rawResults, rawColumns);
+        if (!chartable) return; // All columns are numeric or all text — skip chart
+
+        document.getElementById('chartSection').style.display = 'block';
+        renderChart();
+    }
+
+    /**
+     * FIXED: Robustly find a label column (string) and a data column (number).
+     * Returns false if we can't find a valid pair (so we skip the chart gracefully).
+     */
+    function detectAxes(rows, headers) {
+        const firstRow = rows[0];
+        let labelIdx = -1;
+        let dataIdx  = -1;
+
+        // Find first column whose first-row value is NOT a pure number → use as label
+        for (let i = 0; i < firstRow.length; i++) {
+            const val = firstRow[i];
+            if (val === null || val === '') continue;
+            if (isNaN(parseFloat(val)) || !isFinite(val)) {
+                labelIdx = i;
+                break;
+            }
+        }
+
+        // Find first column whose first-row value IS a number (and isn't the label)
+        for (let i = 0; i < firstRow.length; i++) {
+            if (i === labelIdx) continue;
+            const val = firstRow[i];
+            if (val !== null && val !== '' && !isNaN(parseFloat(val)) && isFinite(val)) {
+                dataIdx = i;
+                break;
+            }
+        }
+
+        // If we couldn't identify both axes, fall back: col 0 = label, col 1 = data
+        if (labelIdx === -1) labelIdx = 0;
+        if (dataIdx  === -1) dataIdx  = (labelIdx === 0) ? 1 : 0;
+        if (labelIdx === dataIdx) return false; // Nothing useful to chart
+
+        chartConfig.labels    = rows.map(r => (r[labelIdx] !== null ? String(r[labelIdx]) : 'N/A'));
+        chartConfig.data      = rows.map(r => parseFloat(r[dataIdx]) || 0);
+        chartConfig.labelName = headers[dataIdx] || 'Value';
+        return true;
+    }
+
+    /**
+     * FIXED: Accept `btnEl` (the clicked button element) instead of using bare `event`.
+     * The onclick handlers pass `this` explicitly.
+     */
+    function setChartType(type, btnEl) {
+        chartConfig.currentType = type;
+        document.querySelectorAll('.viz-btn').forEach(b => b.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        renderChart();
+    }
+
+    function renderChart() {
+        const canvas = document.getElementById('mainChart');
+        if (!canvas) return;
+        const ctx  = canvas.getContext('2d');
+        const type = chartConfig.currentType;
+        if (myChart) myChart.destroy();
+
+        const isCircular = (type === 'pie' || type === 'doughnut');
+        const cyanBase   = 'rgba(0, 242, 234, 0.2)';
+        const cyanBorder = '#00f2ea';
+        const gridColor  = 'rgba(255, 255, 255, 0.05)';
+
+        const bgColors = chartConfig.labels.map((_, i) =>
+            isCircular ? `hsla(${180 + i * 28}, 80%, 60%, 0.7)` : cyanBase
+        );
+        const borderColors = chartConfig.labels.map((_, i) =>
+            isCircular ? `hsla(${180 + i * 28}, 80%, 60%, 1)` : cyanBorder
+        );
+
+        myChart = new Chart(ctx, {
+            type: type,
+            data: {
+                labels: chartConfig.labels,
+                datasets: [{
+                    label: chartConfig.labelName,
+                    data: chartConfig.data,
+                    backgroundColor: bgColors,
+                    borderColor: borderColors,
+                    borderWidth: 1,
+                    tension: 0.4,
+                    fill: (type === 'line'),
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#94a3b8', font: { family: 'Outfit' } } },
+                    tooltip: {
+                        backgroundColor: '#02040a',
+                        titleColor: '#00f2ea',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        titleFont: { family: 'Outfit', size: 14, weight: 'bold' },
+                        bodyFont: { family: 'Outfit', size: 13 }
+                    }
+                },
+                scales: isCircular ? {} : {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: gridColor },
+                        ticks: { color: '#94a3b8', font: { family: 'Outfit' } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { family: 'Outfit' } }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
